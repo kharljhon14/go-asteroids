@@ -7,17 +7,29 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-const rotationPerSecond = math.Pi
+const (
+	rotationPerSecond = math.Pi
+	maxAcceleration   = 8.0
+	speed             = 2
+)
+
+var curAcceleration float64
 
 type Player struct {
-	sprite   *ebiten.Image
-	rotation float64
+	game           *Game
+	sprite         *ebiten.Image
+	rotation       float64
+	posiion        Vector
+	playerVelocity float64
 }
 
 func NewPlayer(game *Game) *Player {
 	sprite := assets.PlayerSprite
 
-	return &Player{sprite: sprite}
+	return &Player{
+		game:   game,
+		sprite: sprite,
+	}
 }
 
 func (p *Player) Draw(screen *ebiten.Image) {
@@ -31,6 +43,8 @@ func (p *Player) Draw(screen *ebiten.Image) {
 	opt.GeoM.Rotate(p.rotation)
 	opt.GeoM.Translate(halfW, halfH)
 
+	opt.GeoM.Translate(p.posiion.X, p.posiion.Y)
+
 	screen.DrawImage(p.sprite, opt)
 }
 
@@ -41,5 +55,27 @@ func (p *Player) Update() {
 		p.rotation -= speed
 	} else if ebiten.IsKeyPressed(ebiten.KeyD) {
 		p.rotation += speed
+	}
+
+	p.accelerate()
+}
+
+func (p *Player) accelerate() {
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		if curAcceleration < maxAcceleration {
+			curAcceleration = p.playerVelocity + speed
+		} else if curAcceleration >= maxAcceleration {
+			curAcceleration = maxAcceleration
+		}
+
+		p.playerVelocity = curAcceleration
+
+		// Move in the direction pointing
+		dx := math.Sin(p.rotation) * curAcceleration
+		dy := math.Cos(p.rotation) * -curAcceleration
+
+		// Move the player
+		p.posiion.X += dx
+		p.posiion.Y += dy
 	}
 }
