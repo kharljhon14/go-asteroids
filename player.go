@@ -11,6 +11,8 @@ const (
 	rotationPerSecond = math.Pi
 	maxAcceleration   = 8.0
 	speed             = 2
+	ScreenWidth       = 1280
+	screenHeight      = 720
 )
 
 var curAcceleration float64
@@ -26,9 +28,21 @@ type Player struct {
 func NewPlayer(game *Game) *Player {
 	sprite := assets.PlayerSprite
 
+	// Center player on screen
+	bounds := sprite.Bounds()
+
+	halfW := float64(bounds.Dx()) / 2
+	halfH := float64(bounds.Dy()) / 2
+
+	pos := Vector{
+		X: ScreenWidth/2 - halfW,
+		Y: screenHeight/2 - halfH,
+	}
+
 	return &Player{
-		game:   game,
-		sprite: sprite,
+		game:    game,
+		sprite:  sprite,
+		posiion: pos,
 	}
 }
 
@@ -62,6 +76,8 @@ func (p *Player) Update() {
 
 func (p *Player) accelerate() {
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		p.keepsOnScreen()
+
 		if curAcceleration < maxAcceleration {
 			curAcceleration = p.playerVelocity + speed
 		} else if curAcceleration >= maxAcceleration {
@@ -77,5 +93,19 @@ func (p *Player) accelerate() {
 		// Move the player
 		p.posiion.X += dx
 		p.posiion.Y += dy
+	}
+}
+
+func (p *Player) keepsOnScreen() {
+	if p.posiion.X >= float64(ScreenWidth) {
+		p.posiion.X = 0
+	} else if p.posiion.X < 0 {
+		p.posiion.X = ScreenWidth
+	}
+
+	if p.posiion.Y >= float64(screenHeight) {
+		p.posiion.Y = 0
+	} else if p.posiion.Y < 0 {
+		p.posiion.Y = screenHeight
 	}
 }
