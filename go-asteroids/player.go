@@ -1,4 +1,4 @@
-package main
+package goasteroids
 
 import (
 	"go-asteroids/assets"
@@ -12,7 +12,7 @@ const (
 	maxAcceleration   = 8.0
 	speed             = 2
 	ScreenWidth       = 1280
-	screenHeight      = 720
+	ScreenHeight      = 720
 )
 
 var curAcceleration float64
@@ -36,7 +36,7 @@ func NewPlayer(game *Game) *Player {
 
 	pos := Vector{
 		X: ScreenWidth/2 - halfW,
-		Y: screenHeight/2 - halfH,
+		Y: ScreenHeight/2 - halfH,
 	}
 
 	return &Player{
@@ -103,9 +103,9 @@ func (p *Player) keepsOnScreen() {
 		p.posiion.X = ScreenWidth
 	}
 
-	if p.posiion.Y >= float64(screenHeight) {
+	if p.posiion.Y >= float64(ScreenHeight) {
 		p.posiion.Y = 0
 	} else if p.posiion.Y < 0 {
-		p.posiion.Y = screenHeight
+		p.posiion.Y = ScreenHeight
 	}
 }
